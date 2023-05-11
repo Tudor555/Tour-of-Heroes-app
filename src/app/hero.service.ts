@@ -21,6 +21,7 @@ export class HeroService {
     private http: HttpClient,
     private messageService: MessageService) { }
 
+    //heroes from server
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(this.heroesUrl)
       .pipe(
@@ -29,6 +30,8 @@ export class HeroService {
       );
   }
 
+  //hero by id
+  //undefined if id not found
   getHeroNo404<Data>(id: number): Observable<Hero> {
     const url = `${this.heroesUrl}/?id=${id}`;
     return this.http.get<Hero[]>(url)
@@ -42,6 +45,8 @@ export class HeroService {
       );
   }
 
+ //hero id
+ //404 if id not found
   getHero(id: number): Observable<Hero> {
     const url = `${this.heroesUrl}/${id}`;
     return this.http.get<Hero>(url).pipe(
@@ -50,6 +55,7 @@ export class HeroService {
     );
   }
 
+  //heroes name who contains search term
   searchHeroes(term: string): Observable<Hero[]> {
     if (!term.trim()) {
       return of([]);
@@ -62,6 +68,7 @@ export class HeroService {
     );
   }
 
+  //add a new hero to server
   addHero(hero: Hero): Observable<Hero> {
     return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions).pipe(
       tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}`)),
@@ -69,6 +76,7 @@ export class HeroService {
     );
   }
 
+  //delete hero from server
   deleteHero(id: number): Observable<Hero> {
     const url = `${this.heroesUrl}/${id}`;
 
@@ -78,6 +86,7 @@ export class HeroService {
     );
   }
 
+  //update hero on server
   updateHero(hero: Hero): Observable<any> {
     return this.http.put(this.heroesUrl, hero, this.httpOptions).pipe(
       tap(_ => this.log(`updated hero id=${hero.id}`)),
@@ -85,14 +94,20 @@ export class HeroService {
     );
   }
 
+  //handle http operation that failed
+  //let the app continue
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
+      //send the error
       console.error(error); 
+      //transforming error for user consumption
       this.log(`${operation} failed: ${error.message}`);
+      //app running but return an empty result
       return of(result as T);
     };
   }
 
+  //HeroService message with the MessageService
   private log(message: string) {
     this.messageService.add(`HeroService: ${message}`);
   }
